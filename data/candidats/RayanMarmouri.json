@@ -1,0 +1,51 @@
+{
+  "candidat_slug": "rayan-marmouri",
+  "prenom": "Rayan",
+  "nom": "Marmouri",
+  "titre": "Élève-ingénieur Big Data — ESIGELEC",
+  "bio": "Étudiant en dernière année du cycle ingénieur à l'ESIGELEC (majeure Big Data), passionné par les architectures de données, le NoSQL et le développement backend.",
+  "liens": {
+    "github": "https://github.com/Rayan-esig",
+    "linkedin": "https://www.linkedin.com/in/rayan-marmouri"
+  },
+  "experiences": [
+    {
+      "entreprise": "Foodabox",
+      "poste": "Stagiaire Développeur Full-Stack & Data",
+      "debut": "2026-04",
+      "fin": "2026-07",
+      "description": "Stage technique de 16 semaines à Kuala Lumpur : développement de fonctionnalités sur la plateforme Founders Club Asia (backend Flask/PostgreSQL, moteur de recommandation d'événements par IA, panneau d'administration et frontend React/TypeScript).",
+      "competences": ["python", "flask", "postgresql", "react", "typescript"]
+    },
+    {
+      "entreprise": "Eiffage Énergie Systèmes",
+      "poste": "Stagiaire Câbleur",
+      "debut": "2026-01",
+      "fin": "2026-02",
+      "description": "Stage exécutant de 6 semaines à Bihorel : câblage et intégration d'armoires électriques industrielles.",
+      "competences": []
+    }
+  ],
+  "formations": [
+    {
+      "ecole": "ESIGELEC",
+      "diplome": "Cycle ingénieur — Big Data (BDTN)",
+      "debut": "2024-09",
+      "fin": "2027-09"
+    }
+  ],
+  "competences": [
+    { "skill_slug": "python", "nom": "Python", "domaine": "langages", "niveau": 4 },
+    { "skill_slug": "sql", "nom": "SQL", "domaine": "langages", "niveau": 4 },
+    { "skill_slug": "typescript", "nom": "TypeScript", "domaine": "langages", "niveau": 3 },
+    { "skill_slug": "mongodb", "nom": "MongoDB", "domaine": "bases-de-donnees", "niveau": 3 },
+    { "skill_slug": "neo4j", "nom": "Neo4j", "domaine": "bases-de-donnees", "niveau": 3 },
+    { "skill_slug": "postgresql", "nom": "PostgreSQL", "domaine": "bases-de-donnees", "niveau": 3 },
+    { "skill_slug": "fastapi", "nom": "FastAPI", "domaine": "frameworks", "niveau": 3 },
+    { "skill_slug": "flask", "nom": "Flask", "domaine": "frameworks", "niveau": 3 },
+    { "skill_slug": "react", "nom": "React", "domaine": "frameworks", "niveau": 3 },
+    { "skill_slug": "pyspark", "nom": "PySpark", "domaine": "big-data", "niveau": 3 },
+    { "skill_slug": "docker", "nom": "Docker", "domaine": "devops", "niveau": 3 },
+    { "skill_slug": "git", "nom": "Git", "domaine": "outils", "niveau": 4 }
+  ]
+}

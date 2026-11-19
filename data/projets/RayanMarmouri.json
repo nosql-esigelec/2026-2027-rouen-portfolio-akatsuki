@@ -1,0 +1,26 @@
+[
+  {
+    "projet_slug": "smartcity-explorer",
+    "candidat_slugs": ["rayan"],
+    "titre": "SmartCity Explorer",
+    "contexte": "TP NoSQL — ESIGELEC",
+    "description": "API FastAPI polyglotte combinant PostgreSQL et Neo4j pour l'exploration et la recommandation de villes similaires.",
+    "competences": ["python", "fastapi", "neo4j", "postgresql"],
+    "metriques": {},
+    "liens": {
+      "github": "https://github.com/nosql-esigelec/2026-2027-rouen-smartcity-akatsuki"
+    },
+    "images": []
+  },
+  {
+    "projet_slug": "founders-club-asia",
+    "candidat_slugs": ["rayan"],
+    "titre": "Founders Club Asia",
+    "contexte": "Stage technique (16 semaines) — Foodabox, Kuala Lumpur",
+    "description": "Développement full-stack d'une plateforme communautaire avec moteur de recommandation d'événements par IA et interface d'administration.",
+    "competences": ["python", "flask", "postgresql", "react", "typescript"],
+    "metriques": {},
+    "liens": {},
+    "images": []
+  }
+]
