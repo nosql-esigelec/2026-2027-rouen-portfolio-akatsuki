@@ -36,10 +36,10 @@ flowchart LR
 | R3 | Statistiques d'un candidat par compétence | `GET /api/candidats/{slug}/stats` | MongoDB (pipeline d’agrégation) |
 | R4 | Projets similaires à un projet | `GET /api/graph/projets/{slug}/similaires` | Neo4j, puis MongoDB pour les fiches |
 | R5 | Graphe de compétences d'un candidat | `GET /api/graph/competences/{slug}` | Neo4j |
-| R6 | Compétences transversales d’un candidat (utilisées dans plusieurs projets) | `GET /api/graph/candidats/{slug}/competences-transversales` | Neo4j |
-| R7 |Derniers projets de l’équipe, triés par date| `GET /api/projets/recents` | MongoDB (index sur la date) |
-| R8 | Preuves d’une compétence: projets et expériences qui la mobilisent | `GET /api/competences/{slug}/preuves` | Neo4j (slugs), puis MongoDB (contenu) |
-| R9 | Compétences communes à plusieurs candidats (intersection pour mise en avant d'équipe) | `GET /api/graph/competences/communes` | Neo4j |
+| R6 | Compétences communes à plusieurs candidats (intersection pour mise en avant d'équipe) | `GET /api/graph/competences/communes` | Neo4j |
+| R7 | Compétences transversales d’un candidat (utilisées dans plusieurs projets) | `GET /api/graph/candidats/{slug}/competences-transversales` | Neo4j |
+| R8 | Derniers projets de l’équipe, triés par date | `GET /api/projets/recents` | MongoDB (index sur la date) |
+| R9 | Preuves d’une compétence: projets et expériences qui la mobilisent | `GET /api/competences/{slug}/preuves` | Neo4j (slugs), puis MongoDB (contenu) |
 
 ## 3. Modèle MongoDB
 
@@ -132,10 +132,10 @@ flowchart LR
 | Collection | Index | Requête servie (R#) |
 |---|---|---|
 | candidats | _id (= candidat_slug), créé automatiquement, unique | R1 |
-| projets | _id (= projet_slug), créé automatiquement, unique |  R4 et R8 (récupérer les fiches à partir des slugs donnés par Neo4j) |
+| projets | _id (= projet_slug), créé automatiquement, unique |  R4 et R9 (récupérer les fiches à partir des slugs donnés par Neo4j) |
 | projets | { auteurs: 1, date_debut: -1 } | R2 (projets d’un candidat, triés par date), R3 ($match sur l’auteur au début du pipeline) |
-| projets | { "competences.skill_slug": 1 }| R2 (filtre par compétence), R8 |
-| projets | { date_debut: -1 } | R7 (derniers projets de l’équipe) |
+| projets | { "competences.skill_slug": 1 }| R2 (filtre par compétence), R9 |
+| projets | { date_debut: -1 } | R8 (derniers projets de l’équipe) |
 
 
 ```javascript
@@ -219,8 +219,8 @@ flowchart LR
 
 | Relation | De → Vers | Propriétés | Pourquoi ce sens |
 |---|---|---|---|
-| `A_REALISE` | `(:Candidat) → (:Projet)` | aucune | Un candidat **réalise** un projet. Sens actif qui correspond à la question « quels projets a fait ce candidat ? » (R5, R6). Un projet peut avoir plusieurs candidats (relations multiples en entrée côté projet). |
-| `UTILISE` | `(:Projet) → (:Competence)` | aucune | Un projet **utilise** une compétence. Sens qui correspond aux questions « quelles compétences ce projet mobilise ? » et « quels projets utilisent cette compétence ? » (R4, R8). La relation reste simple (pas de poids) : la fréquence d'utilisation s'obtient en comptant les projets côté MongoDB. |
+| `A_REALISE` | `(:Candidat) → (:Projet)` | aucune | Un candidat **réalise** un projet. Sens actif qui correspond à la question « quels projets a fait ce candidat ? » (R5, R7). Un projet peut avoir plusieurs candidats (relations multiples en entrée côté projet). |
+| `UTILISE` | `(:Projet) → (:Competence)` | aucune | Un projet **utilise** une compétence. Sens qui correspond aux questions « quelles compétences ce projet mobilise ? » et « quels projets utilisent cette compétence ? » (R4, R9). La relation reste simple (pas de poids) : la fréquence d'utilisation s'obtient en comptant les projets côté MongoDB. |
 
 ### 4.2 Les 3 requêtes Cypher clés
 
@@ -314,8 +314,8 @@ Le backend est découpé en 5 phases. Les phases **A → B → C → D → E** s
 
 | Lot | Tâche | Dépendances |
 |---|---|---|
-| B1 | Repositories MongoDB : `mongo_candidats.py` (R1, R2, R3, R7) + `mongo_projets.py` (hydratation par slugs pour R4/R8) + création des index (§ 3.3) | A3 |
-| B2 | Repository Neo4j : `neo4j_graph.py` avec les 5 Cypher paramétrées (R4, R5, R6, R8, R9) | A1, A3 |
+| B1 | Repositories MongoDB : `mongo_candidats.py` (R1, R2, R3, R8) + `mongo_projets.py` (hydratation par slugs pour R4/R9) + création des index (§ 3.3) | A3 |
+| B2 | Repository Neo4j : `neo4j_graph.py` avec les 5 Cypher paramétrées (R4, R5, R6, R7, R9) | A1, A3 |
 | B3 | Script `seed.py` idempotent : vidage + insertion Mongo, puis `MERGE` Neo4j, création des contraintes (§ 4.3) | A1, A2, A3 |
 
 #### Phase C — Orchestration (après B)
@@ -323,14 +323,14 @@ Le backend est découpé en 5 phases. Les phases **A → B → C → D → E** s
 | Lot | Tâche | Dépendances |
 |---|---|---|
 | C1 | `services/candidats_service.py` : combine les repos Mongo pour profil / projets / stats | B1 |
-| C2 | `services/graph_service.py` : orchestration Neo4j → Mongo (R4 et R8 renvoient des slugs depuis Neo4j, puis hydratent les fiches via Mongo) | B1, B2 |
+| C2 | `services/graph_service.py` : orchestration Neo4j → Mongo (R4 et R9 renvoient des slugs depuis Neo4j, puis hydratent les fiches via Mongo) | B1, B2 |
 
 #### Phase D — Exposition API (après C)
 
 | Lot | Tâche | Dépendances |
 |---|---|---|
-| D1 | `api/routes_candidats.py` : R1, R2, R3, R7 + enregistrement dans `main.py` via `app.include_router` | C1 |
-| D2 | `api/routes_graph.py` : R4, R5, R6, R8, R9 + enregistrement dans `main.py` | C2 |
+| D1 | `api/routes_candidats.py` : R1, R2, R3, R8 + enregistrement dans `main.py` via `app.include_router` | C1 |
+| D2 | `api/routes_graph.py` : R4, R5, R6, R7, R9 + enregistrement dans `main.py` | C2 |
 | D3 | Vérifier que Swagger (`/docs`) liste toutes les routes et que CORS autorise les frontends | D1, D2 |
 
 #### Phase E — Qualité + livrable
@@ -348,9 +348,9 @@ Chaque membre a un **lot backend** (contribution au critère équipe 40 %) et so
 | Membre (pseudo GitHub) | Backend (couches / routes) | Frontend |
 |---|---|---|
 | `ErwannNobime` — Lead infra & seed | A1 (driver Neo4j) + B3 (seed Mongo+Neo4j idempotent) + E2 (test machine neuve) | `frontends/frontend-ErwannNobime/` |
-| `Donatienmhg` — Lead modèles + Candidats | A3 (modèles Pydantic) + B1 partie `mongo_candidats` + C1 (service candidats) + D1 (routes R1/R2/R3/R7) | `frontends/frontend-Donatienmhg/` |
+| `Donatienmhg` — Lead modèles + Candidats | A3 (modèles Pydantic) + B1 partie `mongo_candidats` + C1 (service candidats) + D1 (routes R1/R2/R3/R8) | `frontends/frontend-Donatienmhg/` |
 | `andrea06-hub` — Lead Projets + hydratation | B1 partie `mongo_projets` (hydratation par slugs) + contribution à C1 | `frontends/frontend-andrea06-hub/` |
-| `Rayan-esig` — Lead Graph Neo4j | B2 (repo Neo4j) + C2 (service graph) + D2 (routes R4/R5/R6/R8/R9) | `frontends/frontend-Rayan-esig/` |
+| `Rayan-esig` — Lead Graph Neo4j | B2 (repo Neo4j) + C2 (service graph) + D2 (routes R4/R5/R6/R7/R9) | `frontends/frontend-Rayan-esig/` |
 | `Ayadjenou` — Qualité + démo + relecture | E1 (tests unitaires toutes couches) + E3 (README) + E2 en binôme + revue des PR | `frontends/frontend-Ayadjenou/` |
 
 ### 6.3 Jalons de synchronisation
